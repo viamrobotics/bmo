@@ -46,5 +46,5 @@ pnpm -C packages/sdk-svelte test-unit:watch  # watch tests
 To test with [playwright][https://playwright.dev/]:
 
 ```bash
-pnpm -C packages/sdk-svelte test-integration 
+pnpm -C packages/sdk-svelte test-integration
 ```

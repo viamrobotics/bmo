@@ -1,3 +1,8 @@
 'use strict';
 
-module.exports = '@viamrobotics/prettier-config/svelte';
+const baseConfig = require('@viamrobotics/prettier-config');
+
+module.exports = {
+  ...baseConfig,
+  plugins: ['prettier-plugin-svelte'],
+};
