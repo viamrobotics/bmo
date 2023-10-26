@@ -2,7 +2,7 @@
 	"name": "@viamrobotics/sdk-svelte",
 	"version": "0.0.1",
 	"publishConfig": {
-	  "access": "public"
+		"access": "public"
 	},
 	"scripts": {
 		"prepare": "svelte-kit sync",
@@ -46,6 +46,7 @@
 		"@viamrobotics/eslint-config": "^0.2.6",
 		"@viamrobotics/prettier-config": "^0.3.4",
 		"@viamrobotics/typescript-config": "^0.1.0",
+		"concurrently": "^8.2.2",
 		"eslint": "^8.52.0",
 		"eslint-config-prettier": "^8.10.0",
 		"eslint-plugin-sonarjs": "^0.21.0",
