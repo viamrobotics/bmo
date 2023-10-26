@@ -26,7 +26,7 @@ jobs:
       - name: Upload npm @viamrobotics/sdk-svelte artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: npm-core-dist
+          name: npm-sdk-svelte-dist
           path: packages/sdk-svelte/dist
 
       # TODO: Come up with docs page strategy
@@ -62,7 +62,7 @@ jobs:
       - name: Download @viamrobotics/sdk-svelte npm artifacts
         uses: actions/download-artifact@v3
         with:
-          name: npm-core-dist
+          name: npm-sdk-svelte-dist
           path: packages/sdk-svelte/dist
 
       - name: Publish 🚀
