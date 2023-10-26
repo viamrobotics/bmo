@@ -1,0 +1,91 @@
+name: Continuous integration and deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install 🔧
+        uses: viamrobotics/js-config/.github/actions/setup@0006127efb3f62669f662ca31c555a49a034935e
+
+      - name: Build 🏗️
+        run: pnpm run build
+
+      - name: Lint and type check 💅
+        run: pnpm run check
+
+      - name: Upload npm @viamrobotics/sdk-svelte artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-core-dist
+          path: packages/sdk-svelte/dist
+
+      # TODO: Come up with docs page strategy
+      # - name: Upload GitHub Pages artifacts
+      #   uses: actions/upload-pages-artifact@v1
+      #   with:
+      #     path: packages/docs
+
+  test:
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install 🔧
+        uses: viamrobotics/js-config/.github/actions/setup@0006127efb3f62669f662ca31c555a49a034935e
+
+      - name: Run tests
+        run: pnpm run test
+
+  deploy-npm:
+    if: ${{ github.repository == 'viamrobotics/bmo' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install 🔧
+        uses: ./.github/actions/setup
+        with:
+          registry-url: https://registry.npmjs.org
+
+      - name: Download @viamrobotics/sdk-svelte npm artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: npm-core-dist
+          path: packages/sdk-svelte/dist
+
+      - name: Publish 🚀
+        run: pnpm publish -r --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # TODO: Come up with docs page strategy
+  # deploy-pages:
+  #   if: ${{ github.repository == 'viamrobotics/bmo' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+  #   needs: [build, test]
+  #   runs-on: ubuntu-latest
+
+  #   permissions:
+  #     pages: write
+  #     id-token: write
+
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v2
+
