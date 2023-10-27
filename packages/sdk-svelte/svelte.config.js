@@ -21,6 +21,7 @@ const config = {
           '../.eslintrc.cjs',
           '../.prettierrc.cjs',
           '../svelte.config.js',
+          '../playwright.config.ts',
         ],
       }),
     },

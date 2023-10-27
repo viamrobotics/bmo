@@ -6,7 +6,8 @@ const config: PlaywrightTestConfig = {
     port: 4173,
   },
   testDir: 'tests',
-  testMatch: /(.+\.)?(test|spec)\.[jt]s/,
+  // eslint-disable-next-line prefer-named-capture-group
+  testMatch: /(.+\.)?(test|spec)\.[jt]s/u,
 };
 
 export default config;
