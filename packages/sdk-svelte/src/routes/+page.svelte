@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     Banner,
-    CodeSnippet,
     NotificationContainer,
     provideNotify,
   } from '@viamrobotics/prime-core';
@@ -12,7 +11,7 @@
 
   import '@viamrobotics/prime-core/prime.css';
 
-  const { statuses, components, services } = useRobotClient();
+  useRobotClient();
 
   let host: string = 'http://localhost:8080';
   let signalingAddress: string = '';
@@ -46,25 +45,4 @@
       Connection lost, attempting to reconnect ...
     </svelte:fragment>
   </Banner>
-
-  <CodeSnippet
-    language="json"
-    code={`${statuses}`}
-  >
-    <svelte:fragment slot="caption">Statuses</svelte:fragment>
-  </CodeSnippet>
-
-  <CodeSnippet
-    language="json"
-    code={`${components}`}
-  >
-    <svelte:fragment slot="caption">Components</svelte:fragment>
-  </CodeSnippet>
-
-  <CodeSnippet
-    language="json"
-    code={`${services}`}
-  >
-    <svelte:fragment slot="caption">Services</svelte:fragment>
-  </CodeSnippet>
 </RobotClient>

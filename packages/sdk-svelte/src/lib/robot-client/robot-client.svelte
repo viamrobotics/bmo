@@ -17,16 +17,14 @@
   export let credential: Credentials | undefined = undefined;
   export let supportedAuthTypes: string[] = [];
 
-  const { robotClient, statusStream } = useRobotClient();
-
+  const { robotClient } = useRobotClient();
   const notify = useNotify();
 
   const dispatch = createEventDispatcher<{
     'connection-error': unknown;
   }>();
 
-  let password = '';
-
+  $: password = '';
   $: isAuthenticating = false;
 
   let isConnected = false;
@@ -37,10 +35,6 @@
       isConnected: $robotClient?.isConnected(),
     });
   }
-
-  const stop = () => {
-    $statusStream.cancel();
-  };
 
   const connect = async (creds?: Credentials) => {
     if (!$robotClient) {
@@ -57,7 +51,6 @@
       }
 
       await getRobotClient(options);
-      return;
     }
   };
 
@@ -88,7 +81,6 @@
   };
 
   const handleUnload = () => {
-    stop();
     $robotClient?.disconnect();
   };
 

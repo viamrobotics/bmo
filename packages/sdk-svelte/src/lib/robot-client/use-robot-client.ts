@@ -1,32 +1,12 @@
-import { onDestroy } from 'svelte';
-import { derived, get, writable } from 'svelte/store';
-import type { JavaScriptValue } from 'google-protobuf/google/protobuf/struct_pb';
+import { get, writable } from 'svelte/store';
 import {
   type RobotClient,
-  type RobotStatusStream,
   createRobotClient,
   type DialWebRTCConf,
-  commonApi,
 } from '@viamrobotics/sdk';
-
-const NOOP_STREAM: RobotStatusStream = {
-  cancel: () => ({}),
-  on: () => NOOP_STREAM,
-};
-
-const resourceNames = writable<commonApi.ResourceName.AsObject[]>([]);
 
 const context = {
   robotClient: writable<RobotClient | undefined>(),
-  statusStream: writable<RobotStatusStream>(NOOP_STREAM),
-  statuses: writable<Record<string, JavaScriptValue>>({}),
-  resourceNames,
-  components: derived(resourceNames, (values) =>
-    values.filter(({ type }) => type === 'component')
-  ),
-  services: derived(resourceNames, (values) =>
-    values.filter(({ type }) => type === 'service')
-  ),
 } as const;
 
 export type RobotClientOptions = Pick<
@@ -62,30 +42,4 @@ export const getRobotClient = async (
 
 export const useRobotClient = () => {
   return context;
-};
-
-/**
- * This hook will fire whenever a connection occurs.
- */
-export const useConnect = (callback: () => void) => {
-  const { robotClient } = useRobotClient();
-
-  const unsub = robotClient.subscribe((value) => {
-    if (value?.isConnected()) {
-      callback();
-    }
-  });
-
-  onDestroy(() => unsub());
-};
-
-/**
- * This hook will fire whenever a disconnect occurs or when a component unmounts.
- */
-export const useDisconnect = (callback: () => void) => {
-  const { statusStream } = useRobotClient();
-
-  statusStream.subscribe((update) => update.on('end', callback));
-
-  onDestroy(callback);
 };
