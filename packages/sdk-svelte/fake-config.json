@@ -1,10 +1,2 @@
 {
-    "components": [
-        {
-            "name": "board1",
-            "type": "board",
-            "model": "fake",
-            "attributes": {}
-        }
-    ]
 }
