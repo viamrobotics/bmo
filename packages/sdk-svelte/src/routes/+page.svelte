@@ -19,7 +19,6 @@
   let authEntity = '';
   let credential: Credentials | undefined = undefined;
   let supportedAuthTypes: string[] = [];
-  let enablePolling = true;
 
   provideNotify();
 </script>
@@ -31,7 +30,6 @@
   {authEntity}
   {credential}
   {supportedAuthTypes}
-  {enablePolling}
 >
   <Banner
     slot="connecting"

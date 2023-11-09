@@ -1,22 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-  import { ConnectionClosedError, type Credentials } from '@viamrobotics/rpc';
-  import type { robotApi, ServiceError } from '@viamrobotics/sdk';
+  import type { Credentials } from '@viamrobotics/rpc';
+  import type { ServiceError } from '@viamrobotics/sdk';
 
   import { Input, Button, Label, useNotify } from '@viamrobotics/prime-core';
-
-  import {
-    useAsyncInterval,
-    useTimeout,
-  } from '@viamrobotics/schedulers/svelte';
-
-  import { getResourceNameString } from '$lib/resource-name';
 
   import {
     useRobotClient,
     getRobotClient,
     type RobotClientOptions,
-    getResourceNames,
   } from './use-robot-client';
 
   export let host: string;
@@ -24,12 +16,8 @@
   export let authEntity = '';
   export let credential: Credentials | undefined = undefined;
   export let supportedAuthTypes: string[] = [];
-  export let enablePolling = true;
 
-  const { robotClient, statusStream, statuses, components } = useRobotClient();
-
-  const initializeTimeout = useTimeout();
-  const pollInterval = useAsyncInterval();
+  const { robotClient, statusStream } = useRobotClient();
 
   const notify = useNotify();
 
@@ -38,7 +26,6 @@
   }>();
 
   let password = '';
-  let hasLoadedResources = false;
 
   $: isAuthenticating = false;
 
@@ -51,78 +38,8 @@
     });
   }
 
-  const updateStatus = (grpcStatuses: robotApi.Status[]) => {
-    for (const grpcStatus of grpcStatuses) {
-      const nameObj = grpcStatus.getName()?.toObject();
-      if (!nameObj) {
-        continue;
-      }
-
-      const status = grpcStatus.getStatus()?.toJavaScript();
-      if (!status) {
-        continue;
-      }
-
-      const name = getResourceNameString(nameObj);
-      $statuses[name] = status;
-    }
-  };
-
-  const restartStatusStream = async () => {
-    if ($statusStream) {
-      $statusStream.cancel();
-    }
-
-    if (!$robotClient) {
-      return;
-    }
-
-    $statusStream = $robotClient.streamStatus($components);
-
-    $statusStream.on('data', (message: robotApi.Status[]) =>
-      updateStatus(message)
-    );
-
-    $statusStream.on('status', (newStatus?: { details: unknown }) => {
-      if (!ConnectionClosedError.isError(newStatus!.details)) {
-        // eslint-disable-next-line no-console
-        console.error('error streaming robot status', newStatus);
-      }
-    });
-
-    $statusStream.on('end', () => {
-      // eslint-disable-next-line no-console
-      console.error('done streaming robot status');
-    });
-  };
-
-  const pollResources = async (): Promise<void> => {
-    if (!$robotClient) {
-      return;
-    }
-
-    try {
-      const { hasChanges } = await getResourceNames();
-
-      let shouldRestartStatusStream = !hasLoadedResources;
-      hasLoadedResources = true;
-
-      if (shouldRestartStatusStream || hasChanges) {
-        restartStatusStream();
-      }
-    } catch (error) {
-      console.error(['error polling resources', error]);
-    }
-  };
-
   const stop = () => {
-    $pollInterval.cancel();
     $statusStream.cancel();
-  };
-
-  const start = async () => {
-    stop();
-    $pollInterval.schedule(pollResources, 5000);
   };
 
   const connect = async (creds?: Credentials) => {
@@ -141,10 +58,6 @@
 
       await getRobotClient(options);
       return;
-    }
-
-    if (enablePolling) {
-      start();
     }
   };
 
@@ -171,7 +84,6 @@
       await connect();
     } catch (error) {
       dispatch('connection-error', error);
-      initializeTimeout.schedule(initialize, 100);
     }
   };
 
@@ -179,8 +91,6 @@
     stop();
     $robotClient?.disconnect();
   };
-
-  $: enablePolling ? start() : stop();
 
   onMount(async () => {
     window.addEventListener('beforeunload', handleUnload);

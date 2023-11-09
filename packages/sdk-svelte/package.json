@@ -51,7 +51,6 @@
     "@viamrobotics/eslint-config": "^0.2.6",
     "@viamrobotics/prettier-config": "^0.3.4",
     "@viamrobotics/prime-core": "^0.0.56",
-    "@viamrobotics/schedulers": "workspace:^",
     "@viamrobotics/typescript-config": "^0.1.0",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",

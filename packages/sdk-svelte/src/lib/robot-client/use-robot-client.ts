@@ -8,10 +8,6 @@ import {
   type DialWebRTCConf,
   commonApi,
 } from '@viamrobotics/sdk';
-import {
-  type ResourceNameString,
-  getResourceNameString,
-} from '$lib/resource-name';
 
 const NOOP_STREAM: RobotStatusStream = {
   cancel: () => ({}),
@@ -92,40 +88,4 @@ export const useDisconnect = (callback: () => void) => {
   statusStream.subscribe((update) => update.on('end', callback));
 
   onDestroy(callback);
-};
-
-export const getResourceNames = async () => {
-  const { robotClient } = useRobotClient();
-  const stored = get(robotClient);
-  let hasChanges = false;
-
-  if (!stored) {
-    // bailing for now, maybe we do something nicer
-    return { resourceNames: [], hasChanges };
-  }
-
-  const resourcesList = await stored.resourceNames();
-
-  const differences = new Set<ResourceNameString>(
-    get(resourceNames).map((name) => getResourceNameString(name))
-  );
-
-  const next = new Set<ResourceNameString>(
-    resourcesList.map((name) => getResourceNameString(name))
-  );
-
-  for (const elem of next) {
-    if (differences.has(elem)) {
-      differences.delete(elem);
-    } else {
-      differences.add(elem);
-    }
-  }
-
-  if (differences.size > 0) {
-    hasChanges = true;
-  }
-
-  resourceNames.set(resourcesList);
-  return { resourceNames: resourcesList, hasChanges };
 };
