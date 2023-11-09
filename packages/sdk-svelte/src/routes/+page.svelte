@@ -6,12 +6,9 @@
   } from '@viamrobotics/prime-core';
   import type { Credentials } from '@viamrobotics/rpc';
 
-  import { useRobotClient } from '$lib/robot-client/use-robot-client';
   import RobotClient from '$lib/robot-client/robot-client.svelte';
 
   import '@viamrobotics/prime-core/prime.css';
-
-  useRobotClient();
 
   let host: string = 'http://localhost:8080';
   let signalingAddress: string = '';

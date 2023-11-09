@@ -1,15 +1,25 @@
+<script
+  lang="ts"
+  context="module"
+>
+  import {
+    createRobotClient,
+    type DialWebRTCConf,
+    type RobotClient,
+    type ServiceError,
+  } from '@viamrobotics/sdk';
+
+  export type RobotClientOptions = Pick<
+    DialWebRTCConf,
+    'host' | 'signalingAddress' | 'authEntity' | 'credential'
+  >;
+</script>
+
 <script lang="ts">
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
   import type { Credentials } from '@viamrobotics/rpc';
-  import type { ServiceError } from '@viamrobotics/sdk';
 
   import { Input, Button, Label, useNotify } from '@viamrobotics/prime-core';
-
-  import {
-    useRobotClient,
-    getRobotClient,
-    type RobotClientOptions,
-  } from './use-robot-client';
 
   export let host: string;
   export let signalingAddress: string;
@@ -17,7 +27,7 @@
   export let credential: Credentials | undefined = undefined;
   export let supportedAuthTypes: string[] = [];
 
-  const { robotClient } = useRobotClient();
+  let robotClient: RobotClient | undefined = undefined;
   const notify = useNotify();
 
   const dispatch = createEventDispatcher<{
@@ -29,10 +39,10 @@
 
   let isConnected = false;
   $: {
-    isConnected = Boolean($robotClient?.isConnected());
+    isConnected = Boolean(robotClient?.isConnected());
     console.log('is connected', {
-      client: $robotClient,
-      isConnected: $robotClient?.isConnected(),
+      client: robotClient,
+      isConnected: robotClient?.isConnected(),
     });
   }
 
@@ -50,7 +60,19 @@
         options.credential = credential;
       }
 
-      await getRobotClient(options);
+      const { port, protocol, hostname } = location;
+      const urlPort = port ? `:${port}` : '';
+      const impliedURL = `${protocol}//${hostname}${urlPort}`;
+
+      robotClient = await createRobotClient({
+        ...options,
+        host: options.host || impliedURL,
+        iceServers: [
+          {
+            urls: 'stun:global.stun.twilio.com:3478',
+          },
+        ],
+      });
     }
   };
 
@@ -81,7 +103,7 @@
   };
 
   const handleUnload = () => {
-    $robotClient?.disconnect();
+    robotClient?.disconnect();
   };
 
   onMount(async () => {
@@ -98,7 +120,7 @@
   });
 </script>
 
-{#if $robotClient === undefined}
+{#if robotClient === undefined}
   <slot name="connecting" />
 {:else if !isConnected}
   <slot name="reconnecting" />
