@@ -47,7 +47,7 @@
   }
 
   const connect = async (creds?: Credentials) => {
-    if (!$robotClient) {
+    if (!robotClient) {
       const options: RobotClientOptions = {
         host,
         signalingAddress,
