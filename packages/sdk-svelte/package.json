@@ -7,7 +7,7 @@
   "scripts": {
     "prepare": "svelte-kit sync",
     "dev": "concurrently -g pnpm:dev-*",
-    "dev-robot": "viam-server -config ./fake-config.json",
+    "dev-robot": "viam-server -debug -config ./fake-config.json",
     "dev-playground": "vite dev",
     "build": "vite build && pnpm run package",
     "preview": "vite preview",
